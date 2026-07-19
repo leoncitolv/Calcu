@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Calculadora de Filas</title>
+    <style>
+        /* Estilo iOS Dark Mode */
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            margin-top: 40px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #ebebf599;
+            margin-bottom: 8px;
+            margin-left: 5px;
+        }
+
+        input[type="number"] {
+            background-color: #1c1c1e;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 17px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="number"]::placeholder {
+            color: #636366;
+        }
+
+        button {
+            background-color: #0a84ff;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            width: 100%;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        button:active {
+            background-color: #0070d6;
+        }
+
+        .result-card {
+            background-color: #1c1c1e;
+            border-radius: 14px;
+            padding: 24px;
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-card.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .number {
+            font-size: 56px;
+            font-weight: 700;
+            color: #0a84ff;
+            margin: 10px 0;
+        }
+
+        .description {
+            font-size: 16px;
+            color: #ebebf5;
+        }
+
+        .remainder {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #ff453a;
+            font-weight: 500;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Reparto de Filas ✈️</h1>
+
+        <div class="input-group">
+            <label for="total-rows">Total de filas en el avión</label>
+            <input type="number" id="total-rows" placeholder="Ej. 30 o 31" inputmode="numeric">
+        </div>
+
+        <div class="input-group">
+            <label for="total-workers">Personal disponible</label>
+            <input type="number" id="total-workers" placeholder="Ej. 6, 8, 10" inputmode="numeric">
+        </div>
+
+        <button onclick="calculateRows()">Calcular Asignación</button>
+
+        <div class="result-card" id="result-card">
+            <div class="description">A cada quien le tocan:</div>
+            <div class="number" id="rows-per-person">0</div>
+            <div class="description">filas completas</div>
+            <div class="remainder" id="remainder-info"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculateRows() {
+            const totalRows = parseInt(document.getElementById('total-rows').value);
+            const totalWorkers = parseInt(document.getElementById('total-workers').value);
+            const resultCard = document.getElementById('result-card');
+            const rowsPerPersonEl = document.getElementById('rows-per-person');
+            const remainderInfoEl = document.getElementById('remainder-info');
+
+            if (!totalRows || !totalWorkers || totalWorkers <= 0) {
+                alert("Por favor, ingresa números válidos.");
+                return;
+            }
+
+            const rowsPerPerson = Math.floor(totalRows / totalWorkers);
+            const remainder = totalRows % totalWorkers;
+
+            rowsPerPersonEl.textContent = rowsPerPerson;
+
+            if (remainder > 0) {
+                remainderInfoEl.textContent = `⚠️ Quedan ${remainder} fila(s) suelta(s) por asignar.`;
+            } else {
+                remainderInfoEl.textContent = "✅ La división es exacta, no sobran filas.";
+                remainderInfoEl.style.color = "#32d74b";
+            }
+
+            resultCard.classList.add('active');
+        }
+    </script>
+</body>
+</html>
