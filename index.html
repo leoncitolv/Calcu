@@ -91,21 +91,28 @@
         }
 
         .number {
-            font-size: 56px;
+            font-size: 40px;
             font-weight: 700;
             color: #0a84ff;
             margin: 10px 0;
         }
+        
+        .number-text {
+            font-size: 18px;
+            color: #ebebf5;
+            font-weight: 400;
+        }
 
         .description {
             font-size: 16px;
-            color: #ebebf5;
+            color: #ebebf599;
+            margin: 15px 0;
         }
 
-        .remainder {
-            margin-top: 15px;
+        .success {
+            margin-top: 20px;
             font-size: 14px;
-            color: #ff453a;
+            color: #32d74b;
             font-weight: 500;
         }
 
@@ -133,10 +140,7 @@
         <button onclick="calculateRows()">Calcular Asignación</button>
 
         <div class="result-card" id="result-card">
-            <div class="description">A cada quien le tocan:</div>
-            <div class="number" id="rows-per-person">0</div>
-            <div class="description">filas completas</div>
-            <div class="remainder" id="remainder-info"></div>
+            <div id="dynamic-result"></div>
         </div>
     </div>
 
@@ -145,24 +149,36 @@
             const totalRows = parseInt(document.getElementById('total-rows').value);
             const totalWorkers = parseInt(document.getElementById('total-workers').value);
             const resultCard = document.getElementById('result-card');
-            const rowsPerPersonEl = document.getElementById('rows-per-person');
-            const remainderInfoEl = document.getElementById('remainder-info');
+            const dynamicResult = document.getElementById('dynamic-result');
 
             if (!totalRows || !totalWorkers || totalWorkers <= 0) {
                 alert("Por favor, ingresa números válidos.");
                 return;
             }
 
-            const rowsPerPerson = Math.floor(totalRows / totalWorkers);
+            const baseRows = Math.floor(totalRows / totalWorkers);
             const remainder = totalRows % totalWorkers;
 
-            rowsPerPersonEl.textContent = rowsPerPerson;
-
-            if (remainder > 0) {
-                remainderInfoEl.textContent = `⚠️ Quedan ${remainder} fila(s) suelta(s) por asignar.`;
+            if (remainder === 0) {
+                // Si la división es exacta
+                dynamicResult.innerHTML = `
+                    <div class="description" style="margin-top: 0;">A todos les tocan:</div>
+                    <div class="number">${baseRows} <span class="number-text">filas por persona</span></div>
+                    <div class="success">✅ Total de ${totalRows} filas cubiertas</div>
+                `;
             } else {
-                remainderInfoEl.textContent = "✅ La división es exacta, no sobran filas.";
-                remainderInfoEl.style.color = "#32d74b";
+                // Si hay sobrantes, calcular el reparto exacto
+                const workersWithExtra = remainder;
+                const extraRows = baseRows + 1;
+                const workersWithBase = totalWorkers - remainder;
+
+                dynamicResult.innerHTML = `
+                    <div class="description" style="margin-top: 0;">Para cubrir todo el avión:</div>
+                    <div class="number">${workersWithExtra} <span class="number-text">personas hacen</span> ${extraRows} <span class="number-text">filas</span></div>
+                    <div class="description">y el resto del equipo...</div>
+                    <div class="number">${workersWithBase} <span class="number-text">personas hacen</span> ${baseRows} <span class="number-text">filas</span></div>
+                    <div class="success">✅ Total de ${totalRows} filas cubiertas</div>
+                `;
             }
 
             resultCard.classList.add('active');
