@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Calculadora de Filas</title>
+    <title>Ruleta de Filas</title>
     <style>
         /* Estilo iOS Dark Mode */
         body {
@@ -41,7 +41,7 @@
             margin-left: 5px;
         }
 
-        input[type="number"] {
+        input[type="number"], textarea {
             background-color: #1c1c1e;
             color: #ffffff;
             border: none;
@@ -54,7 +54,13 @@
             -webkit-appearance: none;
         }
 
-        input[type="number"]::placeholder {
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        input::placeholder, textarea::placeholder {
             color: #636366;
         }
 
@@ -81,7 +87,6 @@
             border-radius: 14px;
             padding: 24px;
             margin-top: 30px;
-            text-align: center;
             display: none;
         }
 
@@ -90,30 +95,49 @@
             animation: fadeIn 0.3s ease;
         }
 
-        .number {
-            font-size: 40px;
-            font-weight: 700;
-            color: #0a84ff;
-            margin: 10px 0;
-        }
-        
-        .number-text {
-            font-size: 18px;
-            color: #ebebf5;
-            font-weight: 400;
-        }
-
-        .description {
-            font-size: 16px;
-            color: #ebebf599;
-            margin: 15px 0;
-        }
-
         .success {
-            margin-top: 20px;
-            font-size: 14px;
+            text-align: center;
+            font-size: 15px;
             color: #32d74b;
             font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .assignment-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .assignment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #38383a;
+        }
+
+        .assignment-item:last-child {
+            border-bottom: none;
+        }
+
+        .name {
+            font-size: 17px;
+            font-weight: 500;
+        }
+
+        .rows-badge {
+            background-color: #38383a;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .extra-row {
+            background-color: #ff9f0a; /* Naranja iOS para destacar a los que les tocó más */
+            color: #000000;
         }
 
         @keyframes fadeIn {
@@ -125,7 +149,7 @@
 <body>
 
     <div class="container">
-        <h1>Reparto de Filas ✈️</h1>
+        <h1>Ruleta de Filas ✈️🎲</h1>
 
         <div class="input-group">
             <label for="total-rows">Total de filas en el avión</label>
@@ -133,54 +157,84 @@
         </div>
 
         <div class="input-group">
-            <label for="total-workers">Personal disponible</label>
-            <input type="number" id="total-workers" placeholder="Ej. 6, 8, 10" inputmode="numeric">
+            <label for="worker-names">Nombres del personal (separados por coma)</label>
+            <textarea id="worker-names" placeholder="Ej. Cesar, Juan, María, Pedro..."></textarea>
         </div>
 
-        <button onclick="calculateRows()">Calcular Asignación</button>
+        <button onclick="calculateAndSpin()">Girar Ruleta y Asignar</button>
 
         <div class="result-card" id="result-card">
-            <div id="dynamic-result"></div>
+            <div class="success" id="summary-text"></div>
+            <ul class="assignment-list" id="assignment-list"></ul>
         </div>
     </div>
 
     <script>
-        function calculateRows() {
-            const totalRows = parseInt(document.getElementById('total-rows').value);
-            const totalWorkers = parseInt(document.getElementById('total-workers').value);
-            const resultCard = document.getElementById('result-card');
-            const dynamicResult = document.getElementById('dynamic-result');
+        // Función para mezclar un arreglo (La "Ruleta")
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
 
-            if (!totalRows || !totalWorkers || totalWorkers <= 0) {
-                alert("Por favor, ingresa números válidos.");
+        function calculateAndSpin() {
+            const totalRows = parseInt(document.getElementById('total-rows').value);
+            const rawNames = document.getElementById('worker-names').value;
+            
+            // Limpiar y separar los nombres (por comas o saltos de línea)
+            const namesArray = rawNames.split(/[\n,]+/).map(name => name.trim()).filter(name => name !== '');
+            const totalWorkers = namesArray.length;
+
+            if (!totalRows || totalWorkers === 0) {
+                alert("Por favor, ingresa el total de filas y al menos un nombre.");
                 return;
             }
 
+            // Cálculos
             const baseRows = Math.floor(totalRows / totalWorkers);
             const remainder = totalRows % totalWorkers;
 
-            if (remainder === 0) {
-                // Si la división es exacta
-                dynamicResult.innerHTML = `
-                    <div class="description" style="margin-top: 0;">A todos les tocan:</div>
-                    <div class="number">${baseRows} <span class="number-text">filas por persona</span></div>
-                    <div class="success">✅ Total de ${totalRows} filas cubiertas</div>
-                `;
-            } else {
-                // Si hay sobrantes, calcular el reparto exacto
-                const workersWithExtra = remainder;
-                const extraRows = baseRows + 1;
-                const workersWithBase = totalWorkers - remainder;
+            // Girar la ruleta (mezclar los nombres al azar)
+            const shuffledNames = shuffleArray([...namesArray]);
 
-                dynamicResult.innerHTML = `
-                    <div class="description" style="margin-top: 0;">Para cubrir todo el avión:</div>
-                    <div class="number">${workersWithExtra} <span class="number-text">personas hacen</span> ${extraRows} <span class="number-text">filas</span></div>
-                    <div class="description">y el resto del equipo...</div>
-                    <div class="number">${workersWithBase} <span class="number-text">personas hacen</span> ${baseRows} <span class="number-text">filas</span></div>
-                    <div class="success">✅ Total de ${totalRows} filas cubiertas</div>
-                `;
+            // Preparar la interfaz de resultados
+            const resultCard = document.getElementById('result-card');
+            const summaryText = document.getElementById('summary-text');
+            const assignmentList = document.getElementById('assignment-list');
+            
+            assignmentList.innerHTML = ''; // Limpiar lista anterior
+
+            if (remainder === 0) {
+                summaryText.innerHTML = `✅ División exacta. A todos les tocan <b>${baseRows} filas</b>.`;
+            } else {
+                summaryText.innerHTML = `🎲 Ruleta girada. Las filas extra se asignaron al azar.`;
             }
 
+            // Asignar filas persona por persona
+            shuffledNames.forEach((name, index) => {
+                // Si el índice es menor que el residuo, le toca una fila extra
+                const assignedRows = (index < remainder) ? baseRows + 1 : baseRows;
+                const isExtra = (index < remainder && remainder > 0);
+
+                // Crear el elemento de la lista
+                const listItem = document.createElement('li');
+                listItem.className = 'assignment-item';
+                
+                const badgeClass = isExtra ? 'rows-badge extra-row' : 'rows-badge';
+                
+                listItem.innerHTML = `
+                    <span class="name">${name}</span>
+                    <span class="${badgeClass}">${assignedRows} filas</span>
+                `;
+                
+                assignmentList.appendChild(listItem);
+            });
+
+            // Mostrar resultados con animación
+            resultCard.classList.remove('active');
+            void resultCard.offsetWidth; // Truco para reiniciar la animación
             resultCard.classList.add('active');
         }
     </script>
