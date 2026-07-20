@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ruleta de Filas Pro</title>
+    <title>Ruleta y Asignación</title>
     <style>
         /* Estilo iOS Dark Mode */
         body {
@@ -19,14 +19,14 @@
         .container {
             width: 100%;
             max-width: 400px;
-            margin-top: 20px;
+            margin-top: 40px;
             padding-bottom: 40px;
         }
 
         h1 {
             font-size: 28px;
             font-weight: 700;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             text-align: center;
         }
 
@@ -42,7 +42,6 @@
             margin-left: 5px;
         }
 
-        /* Inputs genéricos */
         input[type="number"], input[type="text"] {
             background-color: #1c1c1e;
             color: #ffffff;
@@ -60,124 +59,74 @@
             color: #636366;
         }
 
-        /* Fila para agregar personal */
-        .add-person-row {
+        /* Controles para agregar personal */
+        .add-worker-group {
             display: flex;
             gap: 10px;
+            margin-bottom: 15px;
         }
 
-        .add-person-row input {
+        .add-worker-group input {
             flex: 1;
         }
 
-        .add-btn {
+        .btn-add {
             background-color: #32d74b; /* Verde iOS */
-            color: #000;
+            color: #ffffff;
             border: none;
             border-radius: 10px;
             padding: 0 20px;
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
         }
 
-        .add-btn:active {
-            opacity: 0.7;
-        }
-
-        /* Lista de personal */
-        .team-list-container {
-            background-color: #1c1c1e;
-            border-radius: 12px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-
+        /* Lista del equipo */
         .team-list {
             list-style: none;
             padding: 0;
             margin: 0;
-            max-height: 250px;
-            overflow-y: auto;
+            background-color: #1c1c1e;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
-        .team-member {
+        .team-item {
             display: flex;
             align-items: center;
             padding: 14px 16px;
             border-bottom: 1px solid #38383a;
         }
 
-        .team-member:last-child {
+        .team-item:last-child {
             border-bottom: none;
         }
 
-        /* Custom Checkbox estilo iOS */
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            flex: 1;
-            cursor: pointer;
-        }
-
-        .checkbox-container input {
-            display: none;
-        }
-
-        .checkmark {
+        /* Checkbox estilo iOS */
+        .team-item input[type="checkbox"] {
             width: 24px;
             height: 24px;
-            border-radius: 50%;
-            border: 2px solid #636366;
             margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .checkbox-container input:checked ~ .checkmark {
-            background-color: #0a84ff;
-            border-color: #0a84ff;
-        }
-
-        .checkbox-container input:checked ~ .checkmark::after {
-            content: "✓";
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .member-name {
-            font-size: 17px;
-            transition: color 0.2s;
-        }
-
-        .checkbox-container input:not(:checked) ~ .member-name {
-            color: #636366;
-            text-decoration: line-through;
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #ff453a; /* Rojo iOS */
-            font-size: 20px;
-            padding: 5px 10px;
+            accent-color: #0a84ff;
             cursor: pointer;
         }
 
-        .team-stats {
-            text-align: right;
-            font-size: 13px;
-            color: #ebebf599;
-            margin-top: 8px;
-            margin-bottom: 25px;
+        .team-item .worker-name {
+            flex: 1;
+            font-size: 17px;
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            color: #ff453a; /* Rojo iOS */
+            border: none;
+            font-size: 22px;
+            padding: 0 5px;
+            cursor: pointer;
         }
 
         /* Botón Principal */
-        .main-btn {
+        .btn-main {
             background-color: #0a84ff;
             color: #ffffff;
             border: none;
@@ -187,15 +136,15 @@
             font-size: 17px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 20px;
             transition: background-color 0.2s;
         }
 
-        .main-btn:active {
+        .btn-main:active {
             background-color: #0070d6;
         }
 
-        /* Resultados */
+        /* Tarjeta de resultados */
         .result-card {
             background-color: #1c1c1e;
             border-radius: 14px;
@@ -240,7 +189,7 @@
             flex-direction: column;
         }
 
-        .name-result {
+        .name {
             font-size: 17px;
             font-weight: 500;
         }
@@ -276,7 +225,7 @@
 <body>
 
     <div class="container">
-        <h1>Asignación Pro ✈️</h1>
+        <h1>Asignación de Filas ✈️</h1>
 
         <div class="input-group">
             <label for="total-rows">Total de filas en el avión</label>
@@ -284,21 +233,16 @@
         </div>
 
         <div class="input-group">
-            <label>Equipo de trabajo</label>
-            <div class="add-person-row">
-                <input type="text" id="new-name" placeholder="Nombre del compañero">
-                <button class="add-btn" onclick="addPerson()">+</button>
+            <label>Personal (Marca a los que asistieron hoy)</label>
+            <div class="add-worker-group">
+                <input type="text" id="new-worker-name" placeholder="Nuevo nombre...">
+                <button class="btn-add" onclick="addWorker()">Agregar</button>
             </div>
-            
-            <div class="team-list-container">
-                <ul class="team-list" id="team-list">
-                    <!-- Los nombres se cargarán aquí con JavaScript -->
-                </ul>
-            </div>
-            <div class="team-stats" id="team-stats">0 seleccionados</div>
+            <!-- Aquí se mostrará la lista guardada -->
+            <ul class="team-list" id="team-list"></ul>
         </div>
 
-        <button class="main-btn" onclick="calculateAndSpin()">Girar Ruleta y Asignar</button>
+        <button class="btn-main" onclick="calculateAndSpin()">Girar Ruleta y Asignar</button>
 
         <div class="result-card" id="result-card">
             <div class="success" id="summary-text"></div>
@@ -307,84 +251,72 @@
     </div>
 
     <script>
-        // Array para guardar el equipo
-        let team = [];
+        // --- GESTIÓN DE LA LISTA DE PERSONAL ---
+        
+        // Cargar lista desde la memoria del teléfono (o crear una vacía)
+        let team = JSON.parse(localStorage.getItem('savedTeam')) || [];
 
-        // Inicializar la app cargando datos guardados
-        document.addEventListener("DOMContentLoaded", () => {
-            const savedTeam = localStorage.getItem('airplaneTeam');
-            if (savedTeam) {
-                team = JSON.parse(savedTeam);
-            }
-            renderTeam();
-
-            // Permitir agregar con la tecla Enter
-            document.getElementById('new-name').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') addPerson();
-            });
-        });
-
+        // Función para guardar los cambios en la memoria
         function saveTeam() {
-            localStorage.setItem('airplaneTeam', JSON.stringify(team));
+            localStorage.setItem('savedTeam', JSON.stringify(team));
         }
 
-        function addPerson() {
-            const nameInput = document.getElementById('new-name');
-            const name = nameInput.value.trim();
-            
-            if (name === '') return;
-
-            // Evitar duplicados exactos
-            if (team.some(member => member.name.toLowerCase() === name.toLowerCase())) {
-                alert("Ese nombre ya está en la lista.");
-                return;
-            }
-
-            team.push({ name: name, active: true, id: Date.now() });
-            nameInput.value = ''; // Limpiar caja de texto
-            saveTeam();
-            renderTeam();
-        }
-
-        function togglePerson(id) {
-            const person = team.find(p => p.id === id);
-            if (person) {
-                person.active = !person.active;
-                saveTeam();
-                renderTeam(); // Actualizar contador
-            }
-        }
-
-        function deletePerson(id) {
-            team = team.filter(p => p.id !== id);
-            saveTeam();
-            renderTeam();
-        }
-
-        function renderTeam() {
+        // Función para mostrar la lista en pantalla
+        function renderTeamList() {
             const listElement = document.getElementById('team-list');
-            listElement.innerHTML = '';
-            
-            let activeCount = 0;
+            listElement.innerHTML = ''; // Limpiar lista
 
-            team.forEach(member => {
-                if(member.active) activeCount++;
-
+            team.forEach((worker, index) => {
                 const li = document.createElement('li');
-                li.className = 'team-member';
+                li.className = 'team-item';
+                
+                // Si la persona está activa, marcar el checkbox
+                const checkedHTML = worker.active ? 'checked' : '';
+
                 li.innerHTML = `
-                    <label class="checkbox-container">
-                        <input type="checkbox" onchange="togglePerson(${member.id})" ${member.active ? 'checked' : ''}>
-                        <span class="checkmark"></span>
-                        <span class="member-name">${member.name}</span>
-                    </label>
-                    <button class="delete-btn" onclick="deletePerson(${member.id})">✕</button>
+                    <input type="checkbox" onchange="toggleWorker(${index})" ${checkedHTML}>
+                    <span class="worker-name">${worker.name}</span>
+                    <button class="btn-delete" onclick="deleteWorker(${index})">×</button>
                 `;
                 listElement.appendChild(li);
             });
-
-            document.getElementById('team-stats').innerText = `${activeCount} compañero(s) activo(s) para el reparto`;
         }
+
+        // Función para agregar un nombre nuevo
+        function addWorker() {
+            const input = document.getElementById('new-worker-name');
+            const name = input.value.trim();
+
+            if (name === '') return; // No agregar si está vacío
+
+            // Agregar a la lista (por defecto activo)
+            team.push({ name: name, active: true });
+            input.value = ''; // Limpiar cajita
+            
+            saveTeam();
+            renderTeamList();
+        }
+
+        // Función para activar/desactivar el checkbox de una persona
+        function toggleWorker(index) {
+            team[index].active = !team[index].active;
+            saveTeam();
+        }
+
+        // Función para borrar a alguien definitivamente de la lista
+        function deleteWorker(index) {
+            // Confirmación opcional para no borrar por accidente
+            if (confirm(`¿Borrar a ${team[index].name} de la lista guardada?`)) {
+                team.splice(index, 1);
+                saveTeam();
+                renderTeamList();
+            }
+        }
+
+        // Mostrar la lista apenas carga la página
+        window.onload = renderTeamList;
+
+        // --- LÓGICA DE LA RULETA Y ASIGNACIÓN ---
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -397,25 +329,25 @@
         function calculateAndSpin() {
             const totalRows = parseInt(document.getElementById('total-rows').value);
             
-            // Filtrar solo a los que tienen la palomita (activos)
-            const activeTeam = team.filter(member => member.active).map(member => member.name);
-            const totalWorkers = activeTeam.length;
+            // Filtrar SOLO a los que tienen la "palomita" puesta
+            const activeWorkers = team.filter(worker => worker.active).map(worker => worker.name);
+            const totalWorkers = activeWorkers.length;
 
             if (!totalRows || totalWorkers === 0) {
-                alert("Ingresa el total de filas y asegúrate de tener al menos un compañero seleccionado (con palomita).");
+                alert("Ingresa el total de filas y asegúrate de marcar al menos a una persona en la lista.");
                 return;
             }
 
             if (totalWorkers > totalRows) {
-                alert("Hay más personal activo que filas. Revisa los datos.");
+                alert("Hay más personal marcado que filas en el avión. Revisa los datos.");
                 return;
             }
 
             const baseRows = Math.floor(totalRows / totalWorkers);
             const remainder = totalRows % totalWorkers;
 
-            // Girar la ruleta con los activos
-            const shuffledNames = shuffleArray([...activeTeam]);
+            // Giramos la ruleta solo con los que vinieron hoy
+            const shuffledNames = shuffleArray([...activeWorkers]);
 
             const resultCard = document.getElementById('result-card');
             const summaryText = document.getElementById('summary-text');
@@ -424,9 +356,9 @@
             assignmentList.innerHTML = ''; 
 
             if (remainder === 0) {
-                summaryText.innerHTML = `✅ A todos les tocan <b>${baseRows} filas</b>.`;
+                summaryText.innerHTML = `✅ A todos les tocan <b>${baseRows} filas</b>. Asignación consecutiva.`;
             } else {
-                summaryText.innerHTML = `🎲 Las filas extra se asignaron al azar.`;
+                summaryText.innerHTML = `🎲 Las filas extra se asignaron al azar y se organizaron por zona.`;
             }
 
             let currentRow = 1;
@@ -434,22 +366,25 @@
             shuffledNames.forEach((name, index) => {
                 const assignedRows = (index < remainder) ? baseRows + 1 : baseRows;
                 const isExtra = (index < remainder && remainder > 0);
+
                 const endRow = currentRow + assignedRows - 1;
                 const rangeText = (assignedRows === 1) ? `Fila ${currentRow}` : `De la ${currentRow} - ${endRow}`;
 
                 const listItem = document.createElement('li');
                 listItem.className = 'assignment-item';
+                
                 const badgeClass = isExtra ? 'rows-badge extra-row' : 'rows-badge';
                 
                 listItem.innerHTML = `
                     <div class="name-section">
-                        <span class="name-result">${name}</span>
+                        <span class="name">${name}</span>
                         <span class="total-rows-info">(Hace ${assignedRows} filas)</span>
                     </div>
                     <span class="${badgeClass}">${rangeText}</span>
                 `;
                 
                 assignmentList.appendChild(listItem);
+                
                 currentRow = endRow + 1;
             });
 
