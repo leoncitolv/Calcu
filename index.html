@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ruleta y Rangos de Filas</title>
+    <title>Ruleta de Filas Pro</title>
     <style>
         /* Estilo iOS Dark Mode */
         body {
@@ -19,13 +19,14 @@
         .container {
             width: 100%;
             max-width: 400px;
-            margin-top: 40px;
+            margin-top: 20px;
+            padding-bottom: 40px;
         }
 
         h1 {
             font-size: 28px;
             font-weight: 700;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             text-align: center;
         }
 
@@ -41,7 +42,8 @@
             margin-left: 5px;
         }
 
-        input[type="number"], textarea {
+        /* Inputs genéricos */
+        input[type="number"], input[type="text"] {
             background-color: #1c1c1e;
             color: #ffffff;
             border: none;
@@ -54,17 +56,128 @@
             -webkit-appearance: none;
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-            font-family: inherit;
-        }
-
-        input::placeholder, textarea::placeholder {
+        input::placeholder {
             color: #636366;
         }
 
-        button {
+        /* Fila para agregar personal */
+        .add-person-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .add-person-row input {
+            flex: 1;
+        }
+
+        .add-btn {
+            background-color: #32d74b; /* Verde iOS */
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            padding: 0 20px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .add-btn:active {
+            opacity: 0.7;
+        }
+
+        /* Lista de personal */
+        .team-list-container {
+            background-color: #1c1c1e;
+            border-radius: 12px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .team-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .team-member {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid #38383a;
+        }
+
+        .team-member:last-child {
+            border-bottom: none;
+        }
+
+        /* Custom Checkbox estilo iOS */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            display: none;
+        }
+
+        .checkmark {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #636366;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #0a84ff;
+            border-color: #0a84ff;
+        }
+
+        .checkbox-container input:checked ~ .checkmark::after {
+            content: "✓";
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .member-name {
+            font-size: 17px;
+            transition: color 0.2s;
+        }
+
+        .checkbox-container input:not(:checked) ~ .member-name {
+            color: #636366;
+            text-decoration: line-through;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff453a; /* Rojo iOS */
+            font-size: 20px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .team-stats {
+            text-align: right;
+            font-size: 13px;
+            color: #ebebf599;
+            margin-top: 8px;
+            margin-bottom: 25px;
+        }
+
+        /* Botón Principal */
+        .main-btn {
             background-color: #0a84ff;
             color: #ffffff;
             border: none;
@@ -78,10 +191,11 @@
             transition: background-color 0.2s;
         }
 
-        button:active {
+        .main-btn:active {
             background-color: #0070d6;
         }
 
+        /* Resultados */
         .result-card {
             background-color: #1c1c1e;
             border-radius: 14px;
@@ -126,7 +240,7 @@
             flex-direction: column;
         }
 
-        .name {
+        .name-result {
             font-size: 17px;
             font-weight: 500;
         }
@@ -149,7 +263,7 @@
         }
 
         .extra-row {
-            background-color: #ff9f0a; /* Naranja para destacar filas extra */
+            background-color: #ff9f0a;
             color: #000000;
         }
 
@@ -162,7 +276,7 @@
 <body>
 
     <div class="container">
-        <h1>Asignación de Filas ✈️</h1>
+        <h1>Asignación Pro ✈️</h1>
 
         <div class="input-group">
             <label for="total-rows">Total de filas en el avión</label>
@@ -170,11 +284,21 @@
         </div>
 
         <div class="input-group">
-            <label for="worker-names">Nombres del personal (separados por coma)</label>
-            <textarea id="worker-names" placeholder="Ej. Maura, Rogelio, Cesar..."></textarea>
+            <label>Equipo de trabajo</label>
+            <div class="add-person-row">
+                <input type="text" id="new-name" placeholder="Nombre del compañero">
+                <button class="add-btn" onclick="addPerson()">+</button>
+            </div>
+            
+            <div class="team-list-container">
+                <ul class="team-list" id="team-list">
+                    <!-- Los nombres se cargarán aquí con JavaScript -->
+                </ul>
+            </div>
+            <div class="team-stats" id="team-stats">0 seleccionados</div>
         </div>
 
-        <button onclick="calculateAndSpin()">Girar Ruleta y Asignar</button>
+        <button class="main-btn" onclick="calculateAndSpin()">Girar Ruleta y Asignar</button>
 
         <div class="result-card" id="result-card">
             <div class="success" id="summary-text"></div>
@@ -183,6 +307,85 @@
     </div>
 
     <script>
+        // Array para guardar el equipo
+        let team = [];
+
+        // Inicializar la app cargando datos guardados
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTeam = localStorage.getItem('airplaneTeam');
+            if (savedTeam) {
+                team = JSON.parse(savedTeam);
+            }
+            renderTeam();
+
+            // Permitir agregar con la tecla Enter
+            document.getElementById('new-name').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') addPerson();
+            });
+        });
+
+        function saveTeam() {
+            localStorage.setItem('airplaneTeam', JSON.stringify(team));
+        }
+
+        function addPerson() {
+            const nameInput = document.getElementById('new-name');
+            const name = nameInput.value.trim();
+            
+            if (name === '') return;
+
+            // Evitar duplicados exactos
+            if (team.some(member => member.name.toLowerCase() === name.toLowerCase())) {
+                alert("Ese nombre ya está en la lista.");
+                return;
+            }
+
+            team.push({ name: name, active: true, id: Date.now() });
+            nameInput.value = ''; // Limpiar caja de texto
+            saveTeam();
+            renderTeam();
+        }
+
+        function togglePerson(id) {
+            const person = team.find(p => p.id === id);
+            if (person) {
+                person.active = !person.active;
+                saveTeam();
+                renderTeam(); // Actualizar contador
+            }
+        }
+
+        function deletePerson(id) {
+            team = team.filter(p => p.id !== id);
+            saveTeam();
+            renderTeam();
+        }
+
+        function renderTeam() {
+            const listElement = document.getElementById('team-list');
+            listElement.innerHTML = '';
+            
+            let activeCount = 0;
+
+            team.forEach(member => {
+                if(member.active) activeCount++;
+
+                const li = document.createElement('li');
+                li.className = 'team-member';
+                li.innerHTML = `
+                    <label class="checkbox-container">
+                        <input type="checkbox" onchange="togglePerson(${member.id})" ${member.active ? 'checked' : ''}>
+                        <span class="checkmark"></span>
+                        <span class="member-name">${member.name}</span>
+                    </label>
+                    <button class="delete-btn" onclick="deletePerson(${member.id})">✕</button>
+                `;
+                listElement.appendChild(li);
+            });
+
+            document.getElementById('team-stats').innerText = `${activeCount} compañero(s) activo(s) para el reparto`;
+        }
+
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -193,25 +396,26 @@
 
         function calculateAndSpin() {
             const totalRows = parseInt(document.getElementById('total-rows').value);
-            const rawNames = document.getElementById('worker-names').value;
             
-            const namesArray = rawNames.split(/[\n,]+/).map(name => name.trim()).filter(name => name !== '');
-            const totalWorkers = namesArray.length;
+            // Filtrar solo a los que tienen la palomita (activos)
+            const activeTeam = team.filter(member => member.active).map(member => member.name);
+            const totalWorkers = activeTeam.length;
 
             if (!totalRows || totalWorkers === 0) {
-                alert("Por favor, ingresa el total de filas y al menos un nombre.");
+                alert("Ingresa el total de filas y asegúrate de tener al menos un compañero seleccionado (con palomita).");
                 return;
             }
 
             if (totalWorkers > totalRows) {
-                alert("Hay más personal que filas. Revisa los datos.");
+                alert("Hay más personal activo que filas. Revisa los datos.");
                 return;
             }
 
             const baseRows = Math.floor(totalRows / totalWorkers);
             const remainder = totalRows % totalWorkers;
 
-            const shuffledNames = shuffleArray([...namesArray]);
+            // Girar la ruleta con los activos
+            const shuffledNames = shuffleArray([...activeTeam]);
 
             const resultCard = document.getElementById('result-card');
             const summaryText = document.getElementById('summary-text');
@@ -220,40 +424,32 @@
             assignmentList.innerHTML = ''; 
 
             if (remainder === 0) {
-                summaryText.innerHTML = `✅ A todos les tocan <b>${baseRows} filas</b>. Asignación consecutiva.`;
+                summaryText.innerHTML = `✅ A todos les tocan <b>${baseRows} filas</b>.`;
             } else {
-                summaryText.innerHTML = `🎲 Las filas extra se asignaron al azar y se organizaron por zona.`;
+                summaryText.innerHTML = `🎲 Las filas extra se asignaron al azar.`;
             }
 
             let currentRow = 1;
 
             shuffledNames.forEach((name, index) => {
-                // Cálculo de filas que le tocan a esta persona
                 const assignedRows = (index < remainder) ? baseRows + 1 : baseRows;
                 const isExtra = (index < remainder && remainder > 0);
-
-                // Cálculo del rango físico en el avión
                 const endRow = currentRow + assignedRows - 1;
-                
-                // Formateo del texto del rango
                 const rangeText = (assignedRows === 1) ? `Fila ${currentRow}` : `De la ${currentRow} - ${endRow}`;
 
                 const listItem = document.createElement('li');
                 listItem.className = 'assignment-item';
-                
                 const badgeClass = isExtra ? 'rows-badge extra-row' : 'rows-badge';
                 
                 listItem.innerHTML = `
                     <div class="name-section">
-                        <span class="name">${name}</span>
+                        <span class="name-result">${name}</span>
                         <span class="total-rows-info">(Hace ${assignedRows} filas)</span>
                     </div>
                     <span class="${badgeClass}">${rangeText}</span>
                 `;
                 
                 assignmentList.appendChild(listItem);
-                
-                // Actualizar la fila actual para la siguiente persona
                 currentRow = endRow + 1;
             });
 
